@@ -116,8 +116,13 @@ function Selector({ label, value, onChange, options }: {
 }
 
 function Avg({ name, value, color, leading }: { name: string; value: number; color: "primary" | "accent"; leading: boolean }) {
+  const ring = leading
+    ? color === "primary"
+      ? "border-primary/40 bg-primary/5"
+      : "border-accent/40 bg-accent/5"
+    : "border-border/40";
   return (
-    <div className={cn("rounded-lg p-3 border", leading ? `border-${color}/40 bg-${color}/5` : "border-border/40")}>
+    <div className={cn("rounded-lg p-3 border", ring)}>
       <div className="text-[10px] text-muted-foreground truncate">{name}</div>
       <div className={cn("text-2xl font-bold font-mono mt-1", color === "primary" ? "text-primary" : "text-accent")}>
         {value}%
