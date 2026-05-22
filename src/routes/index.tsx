@@ -1,26 +1,33 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useState } from "react";
+import { AppShell, type ViewKey } from "@/components/app-shell";
+import { AnalyzerView } from "@/components/views/analyzer-view";
+import { BenchmarkView } from "@/components/views/benchmark-view";
+import { SprintsView } from "@/components/views/sprints-view";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "TechGap Analyzer — Bridge Your Syllabus to Industry" },
+      {
+        name: "description",
+        content:
+          "Compare your engineering syllabus against modern industry requirements. Get a 4-year roadmap of the skills your degree is missing.",
+      },
+      { property: "og:title", content: "TechGap Analyzer" },
+      { property: "og:description", content: "Bridge the gap between your college syllabus and modern industry skills." },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. For sites with multiple pages (About, Services, Contact, etc.),
-// create separate route files (about.tsx, services.tsx, contact.tsx) — don't put all pages in this file.
-function PlaceholderIndex() {
-  return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
-  );
-}
-
 function Index() {
-  return <PlaceholderIndex />;
+  const [view, setView] = useState<ViewKey>("analyzer");
+  return (
+    <AppShell view={view} onViewChange={setView}>
+      {view === "analyzer" && <AnalyzerView />}
+      {view === "benchmark" && <BenchmarkView />}
+      {view === "sprints" && <SprintsView />}
+    </AppShell>
+  );
 }
