@@ -1,7 +1,8 @@
 import { useState, type ReactNode } from "react";
-import { Menu, X, GitCompareArrows, LayoutDashboard, Target, Coffee, Github, Sparkles } from "lucide-react";
+import { Menu, X, GitCompareArrows, LayoutDashboard, Target, QrCode, Github, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { SupportModal } from "@/components/support-modal";
 
 export type ViewKey = "analyzer" | "benchmark" | "sprints";
 
@@ -21,6 +22,7 @@ export function AppShell({
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(true);
+  const [supportOpen, setSupportOpen] = useState(false);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -104,20 +106,18 @@ export function AppShell({
                 <Github className="h-3.5 w-3.5" />
                 Star on GitHub
               </a>
-              <a
-                href="https://www.buymeacoffee.com"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-transform hover:scale-[1.02] shadow-lg"
+              <button
+                onClick={() => setSupportOpen(true)}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-transform hover:scale-[1.02] shadow-lg"
                 style={{
-                  background: "linear-gradient(135deg, #FFDD00, #FFB800)",
-                  color: "#1a1a1a",
-                  boxShadow: "0 8px 24px rgba(255, 200, 0, 0.25)",
+                  background: "var(--gradient-primary)",
+                  color: "var(--primary-foreground)",
+                  boxShadow: "0 8px 24px rgba(95, 232, 166, 0.25)",
                 }}
               >
-                <Coffee className="h-4 w-4" />
-                Buy Me a Coffee
-              </a>
+                <QrCode className="h-4 w-4" />
+                Support the Project
+              </button>
               <div className="text-[10px] text-muted-foreground/60 text-center font-mono pt-1">
                 v0.1 · guest mode
               </div>
@@ -144,6 +144,7 @@ export function AppShell({
           </div>
         </main>
       </div>
+      <SupportModal open={supportOpen} onClose={() => setSupportOpen(false)} />
     </div>
   );
 }
