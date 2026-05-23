@@ -2,7 +2,7 @@ import { useCallback, useState } from "react";
 import { Upload, FileText, Loader2, CheckCircle2, Zap, Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CAREER_TRACKS, ROADMAPS, type CareerTrack, type Semester } from "@/lib/curriculum-data";
+import { CAREER_TRACKS, ROADMAPS, type Semester } from "@/lib/curriculum-data";
 import { useLocalState } from "@/lib/storage";
 import { CourseCard } from "@/components/course-card";
 import { cn } from "@/lib/utils";
@@ -11,7 +11,7 @@ import { jsPDF } from "jspdf";
 
 export function AnalyzerView() {
   const [file, setFile] = useState<File | null>(null);
-  const [track, setTrack] = useState<CareerTrack>("Computer Science Engineering");
+  const [track, setTrack] = useState<string>("Computer Science Engineering");
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +63,8 @@ export function AnalyzerView() {
     }
   };
 
-  const roadmap: Semester[] = aiRoadmap ?? ROADMAPS[track];
+  const fallbackRoadmap = ROADMAPS[track as keyof typeof ROADMAPS] ?? ROADMAPS["Computer Science Engineering"];
+  const roadmap: Semester[] = aiRoadmap ?? fallbackRoadmap;
   const totalGaps = roadmap.reduce((n, s) => n + s.missing.length, 0);
   const closedGaps = roadmap.reduce(
     (n, s) => n + s.missing.filter((m) => completed[m.id]).length,
@@ -161,15 +162,19 @@ export function AnalyzerView() {
             <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Target career track
             </label>
-            <select
+            <input
+              type="text"
               value={track}
-              onChange={(e) => setTrack(e.target.value as CareerTrack)}
+              onChange={(e) => setTrack(e.target.value)}
+              placeholder="e.g. Mechatronics, VLSI Design, Aerospace…"
+              list="career-track-suggestions"
               className="mt-1.5 w-full bg-input border border-border/60 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            >
+            />
+            <datalist id="career-track-suggestions">
               {CAREER_TRACKS.map((t) => (
-                <option key={t}>{t}</option>
+                <option key={t} value={t} />
               ))}
-            </select>
+            </datalist>
           </div>
           <Button
             onClick={generate}
