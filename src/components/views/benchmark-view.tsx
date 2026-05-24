@@ -32,12 +32,13 @@ export function BenchmarkView() {
   const colB = COLLEGES.find((c) => c.id === b)!;
 
   // Use AI result when available, otherwise fall back to local data
+  const fallbackTrack: CareerTrack = "Computer Science Engineering";
   const dataA = aiResult
     ? aiResult.areas.map((area, i) => ({ area, coverage: aiResult.a.scores[i] ?? 0 }))
-    : colA.scoresByTrack[track];
+    : colA.scoresByTrack[fallbackTrack];
   const dataB = aiResult
     ? aiResult.areas.map((area, i) => ({ area, coverage: aiResult.b.scores[i] ?? 0 }))
-    : colB.scoresByTrack[track];
+    : colB.scoresByTrack[fallbackTrack];
   const displayNameA = aiResult ? aiResult.a.name : colA.name;
   const displayNameB = aiResult ? aiResult.b.name : colB.name;
 
