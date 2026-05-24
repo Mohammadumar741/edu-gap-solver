@@ -223,6 +223,10 @@ export function BenchmarkView() {
           </div>
         </details>
       )}
+
+      <p className="text-[11px] text-muted-foreground/80 pt-6 border-t border-border/40 leading-relaxed">
+        Disclaimer: Analysis is AI-generated based on current industry trends and inferred curriculums. Always verify specific degree requirements with the official college syllabus.
+      </p>
     </div>
   );
 }

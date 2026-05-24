@@ -1,19 +1,23 @@
 import { useCallback, useState } from "react";
-import { Upload, FileText, Loader2, CheckCircle2, Zap, Download, AlertCircle } from "lucide-react";
+import { Upload, FileText, Loader2, CheckCircle2, Zap, Download, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ROADMAPS, type Semester } from "@/lib/curriculum-data";
 import { Combobox } from "@/components/ui/combobox";
-import { CAREER_TRACK_SUGGESTIONS } from "@/lib/suggestions";
+import { CAREER_TRACK_SUGGESTIONS, INSTITUTION_SUGGESTIONS } from "@/lib/suggestions";
 import { useLocalState } from "@/lib/storage";
 import { CourseCard } from "@/components/course-card";
 import { cn } from "@/lib/utils";
 import { extractPdfText } from "@/lib/pdf-parse";
 import { jsPDF } from "jspdf";
 
+type Mode = "auto" | "manual";
+
 export function AnalyzerView() {
   const [file, setFile] = useState<File | null>(null);
   const [track, setTrack] = useState<string>("Computer Science Engineering");
+  const [mode, setMode] = useState<Mode>("auto");
+  const [college, setCollege] = useState<string>("NIET");
   const [loading, setLoading] = useState(false);
   const [generated, setGenerated] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -35,21 +39,21 @@ export function AnalyzerView() {
     setAiRoadmap(null);
     try {
       let syllabusText = "";
-      if (file) {
+      let collegeName: string | undefined;
+      if (mode === "manual") {
+        if (!file) throw new Error("Upload a syllabus PDF, or switch to Auto AI Search.");
         syllabusText = await extractPdfText(file);
-      }
-      if (!syllabusText) {
-        // fall back to dummy roadmap if no file
-        setGenerated(true);
-        setLoading(false);
-        return;
+        if (!syllabusText) throw new Error("Could not read text from the PDF.");
+      } else {
+        collegeName = college.trim();
+        if (!collegeName) throw new Error("Enter a college name to search.");
       }
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           mode: "analyze",
-          payload: { syllabusText, track },
+          payload: { syllabusText, track, college: collegeName },
         }),
       });
       const data = await res.json();
@@ -119,44 +123,82 @@ export function AnalyzerView() {
           Bridge your <span className="text-primary">syllabus → industry</span> gap
         </h1>
         <p className="text-sm text-muted-foreground mt-1.5">
-          Upload your college syllabus PDF and get a 4-year roadmap of the modern skills your degree is missing.
+          Search your college or upload your syllabus PDF — get a 4-year roadmap of the modern skills your degree is missing.
         </p>
       </header>
 
+      {/* Mode toggle */}
+      <div className="inline-flex p-1 rounded-lg bg-card/60 border border-border/60 max-w-full overflow-x-auto">
+        {(["auto", "manual"] as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => setMode(m)}
+            className={cn(
+              "px-3 sm:px-4 py-1.5 rounded-md text-xs font-medium transition-all flex items-center gap-1.5 whitespace-nowrap",
+              mode === m ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {m === "auto" ? <Sparkles className="h-3.5 w-3.5" /> : <Upload className="h-3.5 w-3.5" />}
+            {m === "auto" ? "Auto AI Search" : "Manual PDF Upload"}
+          </button>
+        ))}
+      </div>
+
       <div className="grid lg:grid-cols-[1fr_320px] gap-4">
-        {/* Upload zone */}
-        <label
-          onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={onDrop}
-          className={cn(
-            "relative cursor-pointer rounded-xl border-2 border-dashed transition-all p-8 sm:p-10 flex flex-col items-center justify-center text-center bg-card/40",
-            dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
-          )}
-        >
-          <input
-            type="file"
-            accept=".pdf"
-            className="sr-only"
-            onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-          />
-          <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
-            {file ? <FileText className="h-6 w-6 text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
-          </div>
-          {file ? (
-            <>
-              <div className="font-medium text-sm">{file.name}</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                {(file.size / 1024).toFixed(1)} KB · click to replace
+        {mode === "manual" ? (
+          <label
+            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragLeave={() => setDragOver(false)}
+            onDrop={onDrop}
+            className={cn(
+              "relative cursor-pointer rounded-xl border-2 border-dashed transition-all p-8 sm:p-10 flex flex-col items-center justify-center text-center bg-card/40",
+              dragOver ? "border-primary bg-primary/5" : "border-border hover:border-primary/50",
+            )}
+          >
+            <input
+              type="file"
+              accept=".pdf"
+              className="sr-only"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center mb-3">
+              {file ? <FileText className="h-6 w-6 text-primary" /> : <Upload className="h-6 w-6 text-primary" />}
+            </div>
+            {file ? (
+              <>
+                <div className="font-medium text-sm">{file.name}</div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  {(file.size / 1024).toFixed(1)} KB · click to replace
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="font-medium text-sm">Drop your syllabus PDF here</div>
+                <div className="text-xs text-muted-foreground mt-1">or click to browse · no login required</div>
+              </>
+            )}
+          </label>
+        ) : (
+          <div className="rounded-xl border border-border/60 bg-card/60 p-4 space-y-3">
+            <div>
+              <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
+                College name
+              </label>
+              <div className="mt-1.5">
+                <Combobox
+                  value={college}
+                  onChange={setCollege}
+                  options={INSTITUTION_SUGGESTIONS}
+                  placeholder="e.g. NIET, IIT Delhi, BITS Pilani"
+                />
               </div>
-            </>
-          ) : (
-            <>
-              <div className="font-medium text-sm">Drop your syllabus PDF here</div>
-              <div className="text-xs text-muted-foreground mt-1">or click to browse · no login required</div>
-            </>
-          )}
-        </label>
+              <p className="text-[11px] text-muted-foreground mt-2 flex items-start gap-1.5">
+                <Sparkles className="h-3 w-3 mt-0.5 shrink-0 text-primary" />
+                Gemini will infer the typical curriculum and compute your gaps.
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Controls */}
         <div className="rounded-xl border border-border/60 bg-card/60 p-4 space-y-3">
@@ -180,9 +222,9 @@ export function AnalyzerView() {
             style={{ background: "var(--gradient-primary)", color: "var(--primary-foreground)" }}
           >
             {loading ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {file ? "Parsing & analyzing with Gemini…" : "Loading…"}</>
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {mode === "manual" ? "Parsing & analyzing…" : "Asking Gemini…"}</>
             ) : (
-              <><Zap className="h-4 w-4 mr-2" /> Generate Roadmap</>
+              <><Zap className="h-4 w-4 mr-2" /> Analyze</>
             )}
           </Button>
           {error && (
@@ -268,6 +310,10 @@ export function AnalyzerView() {
           ))}
         </div>
       )}
+
+      <p className="text-[11px] text-muted-foreground/80 pt-6 border-t border-border/40 leading-relaxed">
+        Disclaimer: Analysis is AI-generated based on current industry trends and inferred curriculums. Always verify specific degree requirements with the official college syllabus.
+      </p>
     </div>
   );
 }

@@ -6,9 +6,11 @@ type Body = {
   payload: unknown;
 };
 
-const analyzerPrompt = (syllabusText: string, track: string) => `You are an expert engineering career advisor.
+const analyzerPrompt = (syllabusText: string, track: string, college?: string) => `You are an expert engineering career advisor.
 
-A student in the "${track}" track has uploaded their college syllabus. Compare it against MODERN INDUSTRY requirements (2025) and return a 4-year, 8-semester roadmap of the MISSING modern tech skills they need to be hireable.
+A student in the "${track}" track${college ? ` at "${college}"` : ""} needs a 4-year, 8-semester roadmap of the MISSING modern tech skills they need to be hireable, compared against MODERN INDUSTRY requirements (2025).
+
+${syllabusText ? `Their college syllabus is provided below. Compare it against industry needs.` : `No syllabus was provided — infer the typical curriculum based on your knowledge of "${college}" (a college in India) for the "${track}" track, then compute the gaps.`}
 
 Return ONLY valid minified JSON, no markdown, matching exactly this shape:
 {"semesters":[{"label":"Sem 1","year":1,"covered":["..."],"missing":[{"id":"s1-1","skill":"...","course":{"title":"...","provider":"Udemy","hours":18,"rating":4.7,"affiliateUrl":"#"}}]}]}
@@ -20,9 +22,7 @@ Rules:
 - provider must be one of: "Udemy","Coursera","edX".
 - id must be unique and kebab-case.
 
---- SYLLABUS START ---
-${syllabusText.slice(0, 18000)}
---- SYLLABUS END ---`;
+${syllabusText ? `--- SYLLABUS START ---\n${syllabusText.slice(0, 18000)}\n--- SYLLABUS END ---` : `(No syllabus text — infer from the college name above.)`}`;
 
 const comparePrompt = (a: { name: string; text: string }, b: { name: string; text: string }, track: string) => `You are an engineering curriculum analyst.
 
@@ -63,8 +63,8 @@ export const Route = createFileRoute("/api/gemini")({
         try {
           const body = (await request.json()) as Body;
           if (body.mode === "analyze") {
-            const { syllabusText, track } = body.payload as { syllabusText: string; track: string };
-            const result = await callGemini(analyzerPrompt(syllabusText, track));
+            const { syllabusText, track, college } = body.payload as { syllabusText?: string; track: string; college?: string };
+            const result = await callGemini(analyzerPrompt(syllabusText ?? "", track, college));
             return Response.json(result);
           }
           if (body.mode === "compare") {

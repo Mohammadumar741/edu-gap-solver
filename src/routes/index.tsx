@@ -8,14 +8,18 @@ import { SprintsView } from "@/components/views/sprints-view";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "TechGap Analyzer — Bridge Your Syllabus to Industry" },
+      { title: "TechGap Analyzer | Bridge Your Syllabus to the Industry" },
       {
         name: "description",
         content:
-          "Compare your engineering syllabus against modern industry requirements. Get a 4-year roadmap of the skills your degree is missing.",
+          "Upload your engineering syllabus or search your college to instantly find missing modern tech skills and get personalized roadmap recommendations.",
       },
-      { property: "og:title", content: "TechGap Analyzer" },
-      { property: "og:description", content: "Bridge the gap between your college syllabus and modern industry skills." },
+      { property: "og:title", content: "TechGap Analyzer | Bridge Your Syllabus to the Industry" },
+      {
+        property: "og:description",
+        content:
+          "Upload your engineering syllabus or search your college to instantly find missing modern tech skills and get personalized roadmap recommendations.",
+      },
     ],
   }),
   component: Index,
