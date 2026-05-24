@@ -46,26 +46,14 @@ async function callGemini(prompt: string) {
   if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
 
   const genAI = new GoogleGenerativeAI(apiKey);
-  const tryModels = ["gemini-1.5-flash", "gemini-1.5-flash-latest"];
-  let lastErr: unknown = null;
-  for (const name of tryModels) {
-    try {
-      const model = genAI.getGenerativeModel({
-        model: name,
-        generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
-      });
-      const result = await model.generateContent(prompt);
-      const text = result.response.text() ?? "";
-      const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-      return JSON.parse(cleaned);
-    } catch (e) {
-      lastErr = e;
-      const msg = e instanceof Error ? e.message : String(e);
-      // only fall through on 404/not-found; rethrow others immediately
-      if (!/404|not found|NOT_FOUND/i.test(msg)) throw e;
-    }
-  }
-  throw lastErr instanceof Error ? lastErr : new Error("Gemini API: model not found");
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
+  });
+  const result = await model.generateContent(prompt);
+  const text = result.response.text() ?? "";
+  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+  return JSON.parse(cleaned);
 }
 
 export const Route = createFileRoute("/api/gemini")({
