@@ -4,6 +4,8 @@ import { Trophy, TrendingUp, Sparkles, Upload, FileText, Loader2, AlertCircle } 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { extractPdfText } from "@/lib/pdf-parse";
+import { Combobox } from "@/components/ui/combobox";
+import { INSTITUTION_SUGGESTIONS, CAREER_TRACK_SUGGESTIONS } from "@/lib/suggestions";
 
 type Mode = "auto" | "manual";
 type AIResult = {
@@ -16,7 +18,7 @@ type AIResult = {
 export function BenchmarkView() {
   const [a, setA] = useState(COLLEGES[0].id);
   const [b, setB] = useState(COLLEGES[1].id);
-  const [track, setTrack] = useState<CareerTrack>("Computer Science Engineering");
+  const [track, setTrack] = useState<string>("Computer Science Engineering (CSE)");
   const [mode, setMode] = useState<Mode>("auto");
   const [nameA, setNameA] = useState("NIET");
   const [nameB, setNameB] = useState("Dayalbagh Educational Institute");
@@ -30,12 +32,13 @@ export function BenchmarkView() {
   const colB = COLLEGES.find((c) => c.id === b)!;
 
   // Use AI result when available, otherwise fall back to local data
+  const fallbackTrack: CareerTrack = "Computer Science Engineering";
   const dataA = aiResult
     ? aiResult.areas.map((area, i) => ({ area, coverage: aiResult.a.scores[i] ?? 0 }))
-    : colA.scoresByTrack[track];
+    : colA.scoresByTrack[fallbackTrack];
   const dataB = aiResult
     ? aiResult.areas.map((area, i) => ({ area, coverage: aiResult.b.scores[i] ?? 0 }))
-    : colB.scoresByTrack[track];
+    : colB.scoresByTrack[fallbackTrack];
   const displayNameA = aiResult ? aiResult.a.name : colA.name;
   const displayNameB = aiResult ? aiResult.b.name : colB.name;
 
@@ -116,21 +119,11 @@ export function BenchmarkView() {
         <div className="grid sm:grid-cols-3 gap-3">
           <div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono mb-1.5">Institution A</div>
-            <input
-              value={nameA}
-              onChange={(e) => setNameA(e.target.value)}
-              placeholder="NIET"
-              className="w-full bg-input border border-border/60 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
+            <Combobox value={nameA} onChange={setNameA} options={INSTITUTION_SUGGESTIONS} placeholder="NIET" />
           </div>
           <div>
             <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono mb-1.5">Institution B</div>
-            <input
-              value={nameB}
-              onChange={(e) => setNameB(e.target.value)}
-              placeholder="Dayalbagh Educational Institute"
-              className="w-full bg-input border border-border/60 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
+            <Combobox value={nameB} onChange={setNameB} options={INSTITUTION_SUGGESTIONS} placeholder="Dayalbagh Educational Institute" />
           </div>
           <TrackPicker track={track} setTrack={setTrack} />
         </div>
@@ -234,17 +227,16 @@ export function BenchmarkView() {
   );
 }
 
-function TrackPicker({ track, setTrack }: { track: CareerTrack; setTrack: (t: CareerTrack) => void }) {
+function TrackPicker({ track, setTrack }: { track: string; setTrack: (t: string) => void }) {
   return (
     <div>
       <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono mb-1.5">Career track</div>
-      <select
+      <Combobox
         value={track}
-        onChange={(e) => setTrack(e.target.value as CareerTrack)}
-        className="w-full bg-input border border-border/60 rounded-md px-3 py-2 text-sm"
-      >
-        {CAREER_TRACKS.map((t) => <option key={t}>{t}</option>)}
-      </select>
+        onChange={setTrack}
+        options={CAREER_TRACK_SUGGESTIONS}
+        placeholder="Computer Science Engineering (CSE)"
+      />
     </div>
   );
 }
