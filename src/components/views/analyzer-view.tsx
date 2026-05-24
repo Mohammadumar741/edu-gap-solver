@@ -2,7 +2,9 @@ import { useCallback, useState } from "react";
 import { Upload, FileText, Loader2, CheckCircle2, Zap, Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CAREER_TRACKS, ROADMAPS, type Semester } from "@/lib/curriculum-data";
+import { ROADMAPS, type Semester } from "@/lib/curriculum-data";
+import { Combobox } from "@/components/ui/combobox";
+import { CAREER_TRACK_SUGGESTIONS } from "@/lib/suggestions";
 import { useLocalState } from "@/lib/storage";
 import { CourseCard } from "@/components/course-card";
 import { cn } from "@/lib/utils";
@@ -162,19 +164,14 @@ export function AnalyzerView() {
             <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Target career track
             </label>
-            <input
-              type="text"
-              value={track}
-              onChange={(e) => setTrack(e.target.value)}
-              placeholder="e.g. Mechatronics, VLSI Design, Aerospace…"
-              list="career-track-suggestions"
-              className="mt-1.5 w-full bg-input border border-border/60 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-            />
-            <datalist id="career-track-suggestions">
-              {CAREER_TRACKS.map((t) => (
-                <option key={t} value={t} />
-              ))}
-            </datalist>
+            <div className="mt-1.5">
+              <Combobox
+                value={track}
+                onChange={setTrack}
+                options={CAREER_TRACK_SUGGESTIONS}
+                placeholder="e.g. Computer Science Engineering (CSE)"
+              />
+            </div>
           </div>
           <Button
             onClick={generate}
