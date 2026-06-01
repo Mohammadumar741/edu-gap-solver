@@ -222,7 +222,7 @@ export function AnalyzerView() {
             style={{ background: "var(--gradient-primary)", color: "var(--primary-foreground)" }}
           >
             {loading ? (
-              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {mode === "manual" ? "Parsing & analyzing…" : "Asking Gemini…"}</>
+              <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {mode === "manual" ? "Parsing & analyzing…" : "Analyzing…"}</>
             ) : (
               <><Zap className="h-4 w-4 mr-2" /> Analyze</>
             )}

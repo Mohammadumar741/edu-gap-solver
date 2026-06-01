@@ -60,14 +60,14 @@ export function AppShell({
         <aside
           className={cn(
             "shrink-0 border-r border-border/60 bg-sidebar/80 backdrop-blur-xl transition-all duration-300 overflow-hidden",
-            open ? "w-64" : "w-0",
+            open ? "w-52" : "w-0",
           )}
         >
-          <nav className="h-full flex flex-col p-3 w-64">
-            <div className="px-2 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
+          <nav className="h-full flex flex-col p-2.5 w-52">
+            <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Modules
             </div>
-            <ul className="space-y-1 mt-1">
+            <ul className="space-y-0.5 mt-1">
               {NAV.map((item) => {
                 const Icon = item.icon;
                 const active = view === item.key;
@@ -76,19 +76,19 @@ export function AppShell({
                     <button
                       onClick={() => onViewChange(item.key)}
                       className={cn(
-                        "w-full text-left px-3 py-2.5 rounded-lg flex items-start gap-3 transition-all group relative",
+                        "w-full text-left px-2.5 py-1.5 rounded-md flex items-start gap-2 transition-all group relative",
                         active
                           ? "bg-primary/10 text-foreground"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
                       )}
                     >
                       {active && (
-                        <span className="absolute left-0 top-2 bottom-2 w-0.5 rounded-full bg-primary" />
+                        <span className="absolute left-0 top-1.5 bottom-1.5 w-0.5 rounded-full bg-primary" />
                       )}
-                      <Icon className={cn("h-4 w-4 mt-0.5 shrink-0", active && "text-primary")} />
+                      <Icon className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", active && "text-primary")} />
                       <div className="min-w-0">
-                        <div className="text-sm font-medium leading-tight">{item.label}</div>
-                        <div className="text-[11px] text-muted-foreground/80 mt-0.5">{item.desc}</div>
+                        <div className="text-[13px] font-medium leading-tight">{item.label}</div>
+                        <div className="text-[10px] text-muted-foreground/80 mt-0.5 leading-tight">{item.desc}</div>
                       </div>
                     </button>
                   </li>
@@ -96,29 +96,32 @@ export function AppShell({
               })}
             </ul>
 
-            <div className="mt-auto space-y-2">
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-2 px-3 py-2 rounded-md text-xs text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-              >
-                <Github className="h-3.5 w-3.5" />
-                Star on GitHub
-              </a>
+            <div className="mt-4 space-y-2">
               <button
                 onClick={() => setSupportOpen(true)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg text-sm font-semibold transition-transform hover:scale-[1.02] shadow-lg"
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-xs font-semibold transition-transform hover:scale-[1.02] shadow-lg"
                 style={{
                   background: "var(--gradient-primary)",
                   color: "var(--primary-foreground)",
                   boxShadow: "0 8px 24px rgba(95, 232, 166, 0.25)",
                 }}
               >
-                <QrCode className="h-4 w-4" />
+                <QrCode className="h-3.5 w-3.5" />
                 Support the Project
               </button>
-              <div className="text-[10px] text-muted-foreground/60 text-center font-mono pt-1">
+            </div>
+
+            <div className="mt-auto space-y-1.5">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noreferrer"
+                className="flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[11px] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              >
+                <Github className="h-3.5 w-3.5" />
+                Star on GitHub
+              </a>
+              <div className="text-[10px] text-muted-foreground/60 text-center font-mono">
                 v0.1 · guest mode
               </div>
             </div>

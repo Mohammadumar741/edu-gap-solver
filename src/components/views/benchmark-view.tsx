@@ -144,7 +144,7 @@ export function BenchmarkView() {
           style={{ background: "var(--gradient-primary)", color: "var(--primary-foreground)" }}
         >
           {loading ? (
-            <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {mode === "manual" ? "Parsing & comparing…" : "Asking Gemini…"}</>
+            <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> {mode === "manual" ? "Parsing & comparing…" : "Comparing…"}</>
           ) : (
             <><Sparkles className="h-4 w-4 mr-2" /> Compare</>
           )}
