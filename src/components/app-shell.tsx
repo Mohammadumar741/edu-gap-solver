@@ -71,10 +71,10 @@ export function AppShell({
           className={cn(
             "shrink-0 border-r border-border/60 bg-sidebar/80 backdrop-blur-xl transition-all duration-300 overflow-hidden",
             "fixed left-0 top-14 bottom-0 z-40 md:static md:z-auto",
-            open ? "w-40 md:w-52" : "w-0",
+            open ? "w-36 md:w-52" : "w-0",
           )}
         >
-          <nav className="h-full flex flex-col p-2.5 w-40 md:w-52">
+          <nav className="h-full flex flex-col p-2 w-36 md:w-52 md:p-2.5">
             <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Modules
             </div>
@@ -90,7 +90,7 @@ export function AppShell({
                         if (window.innerWidth < 768) setOpen(false);
                       }}
                       className={cn(
-                        "w-full text-left px-2.5 py-1.5 rounded-md flex items-start gap-2 transition-all group relative",
+                        "w-full text-left px-2 py-1.5 md:px-2.5 rounded-md flex items-start gap-2 transition-all group relative",
                         active
                           ? "bg-primary/10 text-foreground"
                           : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
@@ -101,7 +101,7 @@ export function AppShell({
                       )}
                       <Icon className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", active && "text-primary")} />
                       <div className="min-w-0">
-                        <div className="text-[13px] font-medium leading-tight">{item.label}</div>
+                         <div className="text-[12px] md:text-[13px] font-medium leading-tight">{item.label}</div>
                         <div className="hidden md:block text-[10px] text-muted-foreground/80 mt-0.5 leading-tight">{item.desc}</div>
                       </div>
                     </button>
@@ -113,7 +113,7 @@ export function AppShell({
             <div className="mt-4 space-y-2">
               <button
                 onClick={() => setSupportOpen(true)}
-                className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md text-xs font-semibold transition-transform hover:scale-[1.02] shadow-lg"
+                className="w-full flex items-center justify-center gap-1.5 md:gap-2 px-2 md:px-3 py-2 rounded-md text-[11px] md:text-xs font-semibold transition-transform hover:scale-[1.02] shadow-lg"
                 style={{
                   background: "var(--gradient-primary)",
                   color: "var(--primary-foreground)",
@@ -125,7 +125,7 @@ export function AppShell({
               </button>
             </div>
 
-            <div className="mt-auto space-y-1.5">
+            <div className="mt-auto hidden md:block space-y-1.5">
               <a
                 href="https://github.com"
                 target="_blank"
