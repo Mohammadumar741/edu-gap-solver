@@ -21,12 +21,12 @@ export function AppShell({
   onViewChange: (v: ViewKey) => void;
   children: ReactNode;
 }) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [supportOpen, setSupportOpen] = useState(false);
 
   useEffect(() => {
     const syncSidebarForViewport = () => {
-      if (window.innerWidth < 768) setOpen(false);
+      setOpen(window.innerWidth >= 768);
     };
 
     syncSidebarForViewport();
@@ -71,10 +71,10 @@ export function AppShell({
           className={cn(
             "shrink-0 border-r border-border/60 bg-sidebar/80 backdrop-blur-xl transition-all duration-300 overflow-hidden",
             "fixed left-0 top-14 bottom-0 z-40 md:static md:z-auto",
-            open ? "w-44 md:w-52" : "w-0",
+            open ? "w-40 md:w-52" : "w-0",
           )}
         >
-          <nav className="h-full flex flex-col p-2.5 w-44 md:w-52">
+          <nav className="h-full flex flex-col p-2.5 w-40 md:w-52">
             <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Modules
             </div>
@@ -102,7 +102,7 @@ export function AppShell({
                       <Icon className={cn("h-3.5 w-3.5 mt-0.5 shrink-0", active && "text-primary")} />
                       <div className="min-w-0">
                         <div className="text-[13px] font-medium leading-tight">{item.label}</div>
-                        <div className="text-[10px] text-muted-foreground/80 mt-0.5 leading-tight">{item.desc}</div>
+                        <div className="hidden md:block text-[10px] text-muted-foreground/80 mt-0.5 leading-tight">{item.desc}</div>
                       </div>
                     </button>
                   </li>
