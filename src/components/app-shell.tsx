@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Menu, X, GitCompareArrows, LayoutDashboard, Target, QrCode, Github, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -23,6 +23,16 @@ export function AppShell({
 }) {
   const [open, setOpen] = useState(true);
   const [supportOpen, setSupportOpen] = useState(false);
+
+  useEffect(() => {
+    const syncSidebarForViewport = () => {
+      if (window.innerWidth < 768) setOpen(false);
+    };
+
+    syncSidebarForViewport();
+    window.addEventListener("resize", syncSidebarForViewport);
+    return () => window.removeEventListener("resize", syncSidebarForViewport);
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,10 +70,11 @@ export function AppShell({
         <aside
           className={cn(
             "shrink-0 border-r border-border/60 bg-sidebar/80 backdrop-blur-xl transition-all duration-300 overflow-hidden",
-            open ? "w-52" : "w-0",
+            "fixed left-0 top-14 bottom-0 z-40 md:static md:z-auto",
+            open ? "w-44 md:w-52" : "w-0",
           )}
         >
-          <nav className="h-full flex flex-col p-2.5 w-52">
+          <nav className="h-full flex flex-col p-2.5 w-44 md:w-52">
             <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-muted-foreground font-mono">
               Modules
             </div>
@@ -74,7 +85,10 @@ export function AppShell({
                 return (
                   <li key={item.key}>
                     <button
-                      onClick={() => onViewChange(item.key)}
+                      onClick={() => {
+                        onViewChange(item.key);
+                        if (window.innerWidth < 768) setOpen(false);
+                      }}
                       className={cn(
                         "w-full text-left px-2.5 py-1.5 rounded-md flex items-start gap-2 transition-all group relative",
                         active
