@@ -43,17 +43,37 @@ ${b.text.slice(0, 8000)}`;
 
 async function callGemini(prompt: string) {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) throw new Error("GEMINI_API_KEY not configured");
+  if (!apiKey) throw new Error("AI service not configured");
 
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({
     model: "gemini-2.5-flash",
     generationConfig: { temperature: 0.4, responseMimeType: "application/json" },
   });
-  const result = await model.generateContent(prompt);
-  const text = result.response.text() ?? "";
-  const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
-  return JSON.parse(cleaned);
+
+  const maxAttempts = 6; // ~1 minute of patient retries on overload
+  let lastErr: unknown;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      const result = await model.generateContent(prompt);
+      const text = result.response.text() ?? "";
+      const cleaned = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "").trim();
+      return JSON.parse(cleaned);
+    } catch (e) {
+      lastErr = e;
+      const msg = e instanceof Error ? e.message : String(e);
+      const isBusy = /429|503|quota|rate|overload|unavailable|exhaust/i.test(msg);
+      if (!isBusy || attempt === maxAttempts) break;
+      console.warn(`AI service busy (attempt ${attempt}/${maxAttempts}), retrying in 10s…`);
+      await new Promise((r) => setTimeout(r, 10_000));
+    }
+  }
+  const msg = lastErr instanceof Error ? lastErr.message : String(lastErr);
+  if (/429|503|quota|rate|overload|unavailable|exhaust/i.test(msg)) {
+    throw new Error("Our AI service is experiencing high traffic — please try again in a moment.");
+  }
+  // Scrub provider names from any other error surfaced to the client
+  throw new Error(msg.replace(/gemini/gi, "AI").replace(/google/gi, "AI"));
 }
 
 export const Route = createFileRoute("/api/gemini")({
